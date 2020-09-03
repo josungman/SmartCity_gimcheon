@@ -1,0 +1,9 @@
+git add (프로젝트 추가)
+
+git reset (프로젝트 실행취소)
+ 
+git commit -m (로컬에 프로젝트 업데이트 및 주석 달기)
+
+git status (프로젝트 상태 보기)
+
+git push (리모트 repo에 업로드)
