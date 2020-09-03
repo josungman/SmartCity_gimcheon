@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+    <context:annotation-config />
+
+  <!-- ========= BUSINESS DEFINITIONS =============== -->
+
+    <!-- Load in application properties reference -->
+    <bean id="serviceProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:service.properties" />
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+
+    <!-- ============== JMS Template ======================= -->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="jmsConnectionFactory"></property>
+    </bean>
+
+    <!-- ============ JMS CONNECTION DEFINITIONS FOR TX =============== -->
+    <bean id="jmsConnectionFactory" class="com.indigo.indigomq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory">
+            <bean class="com.indigo.indigomq.IndigoMQConnectionFactory">
+                <property name="brokerURL">
+                    <value>${jms.brokerURL}</value>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+
+    <!-- =========================== Quartz 스케줄러 설정 ================================= -->
+
+    <!-- Cron 대상이 되는 클래스 정의 -->
+    <bean id="iservice" class="org.springframework.scheduling.quartz.JobDetailBean">
+        <property name="jobClass" value="com.DBtoDB.snd.SndMsgDB"/>
+            <property name="jobDataAsMap">
+            <map>
+                <entry key="jmsTemplate" value-ref="jmsTemplate" />     <!-- JMS 템플릿 및 접속 정보 -->
+                <entry key="sendqname" value="QU.BROADCAST" />     <!-- 메세지 큐 이름 -->
+                <entry key="trsmId" value="${trsm.org.id}" />     <!-- 송신기관 ID -->
+                <entry key="recvId" value="${recv.org.id}" />     <!-- 수신기관 ID -->
+                <entry key="dummyYn" value="${dummyYn}" />     <!-- 더미데이터 사용 여부 -->
+                <entry key="updateCnctYn" value="${updateCnctYn}" />     <!-- CnctYn 사용 여부 -->
+                <entry key="dummyDataList" value-ref="dummyDataList"/>  <!-- 더미데이터 -->
+ 				<entry key="ttspath" value="${ttspath}" /> <!-- tts경로 -->           
+            </map>
+        </property>
+    </bean>
+
+    <!-- =========================== DB to DB 서비스 ================================= -->
+    <bean id="MsgCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="iservice"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="serviceName"><value>${serviceName}</value></entry>
+                <entry key="ttspath"><value>${ttspath}</value></entry>
+                <entry key="methodNm"><value>${methodNm}</value></entry>
+            </map>
+        </property>
+        <property name="cronExpression" value="${Msg.cron}"/>
+    </bean>
+    <bean id="MsgCronTrigger2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="iservice"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="serviceName"><value>${serviceName}</value></entry>
+                <entry key="methodNm"><value>${methodNm2}</value></entry>
+            </map>
+        </property>
+        <property name="cronExpression" value="${Msg2.cron}"/>
+    </bean>
+    <!--     ====== ping service ====== -->
+    <bean id="pingCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="iservice"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="serviceName"><value>${ping.serviceName}</value></entry>
+            </map>
+        </property>
+        <property name="cronExpression" value="${ping.cron}"/>
+    </bean>
+
+    <!-- =========================== Cron 실행 ================================= -->
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="MsgCronTrigger"/>
+<!--                 <ref bean="MsgCronTrigger2"/> -->
+<!--                 <ref bean="pingCronTrigger"/> -->
+            </list>
+        </property>
+        <property name="quartzProperties">
+            <props>
+                <prop key="org.quartz.threadPool.class">org.quartz.simpl.SimpleThreadPool</prop>
+                <prop key="org.quartz.threadPool.threadCount">3</prop>
+                <prop key="org.quartz.threadPool.threadPriority">4</prop>
+                <prop key="org.quartz.jobStore.class">org.quartz.simpl.RAMJobStore</prop>
+                <prop key="org.quartz.jobStore.misfireThreshold">60000</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- =========================== 더미 데이터 ================================= -->
+    <bean id="dummyDataList" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <map>
+                    <entry key="reg_date" value="20190612130105" />
+                    <entry key="USER_ID" value="ext_smartcity" />
+                    <entry key="MSG_TYPE" value="S" />
+                    <entry key="MSG" value="Welcome to join." />
+                    <entry key="RECVNUM" value="010-0000-0000" />
+                    <entry key="SENDNUM" value="063-000-0000" />
+                    <entry key="SENDDATE" value="20190607090102" />
+                </map>
+                <map>
+                    <entry key="reg_date" value="20190612130106" />
+                    <entry key="USER_ID" value="ext_smartcity" />
+                    <entry key="MSG_TYPE" value="L" />
+                    <entry key="SUBJECT" value="SUBJECT" />
+                    <entry key="MSG" value="Welcome to join." />
+                    <entry key="RECVNUM" value="010-0000-0000" />
+                    <entry key="SENDNUM" value="063-000-0000" />
+                    <entry key="SENDDATE" value="20190607090102" />
+                </map>
+            </list>
+        </constructor-arg>
+    </bean>
+</beans>

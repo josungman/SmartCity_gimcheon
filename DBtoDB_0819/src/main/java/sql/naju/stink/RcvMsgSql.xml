@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RcvMsg">
+
+    <insert id ="insertMsg" parameterType="HashMap">
+        INSERT INTO ALIMY_TB   /* ESB연계_강형석_insertALIMY_TB */
+                (
+                  JOBCODE,
+                  MSGTYPE,
+                  MSGDESC,
+                  TEL,
+                  RECTEL,
+                  SDATE,
+                  WDATE,
+                  STATUS,
+                  FKEY
+                )
+           VALUES
+                (
+                   '0510',
+                   #{msgtype},
+                   #{msgdesc},
+                   #{tel},
+                   #{rectel},
+                   #{sdate},
+                   TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+                   #{status},
+                   SEQ_ALIMY_FKEY.NEXTVAL
+                 )
+    </insert>
+    <insert id ="insertMMSMessage" parameterType="HashMap">
+        INSERT INTO ALIMY_TB   /* ESB연계_강형석_insertMMS_ALIMY_TB */
+                (
+                  JOBCODE,
+                  MSGTYPE,
+                  MMSDESC,
+                  TEL,
+                  RECTEL,
+                  SDATE,
+                  WDATE,
+                  STATUS,
+                  FKEY
+                )
+           VALUES
+                (
+                   '0510',
+                   #{msgtype},
+                   #{msgdesc},
+                   #{tel},
+                   #{rectel},
+                   #{sdate},
+                   TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+                   #{status},
+                   SEQ_ALIMY_FKEY.NEXTVAL
+                 )
+    </insert>
+
+    <insert id="insertErrorMsg"  parameterType="HashMap" >
+        INSERT  /* ESB연계_변영훈_insertErrorMsg */ INTO  TC_ERROR_LOG_CNCT
+            (
+                  TRNSC_ID
+                , CNCT_PTRN_VAL
+                , TRSM_INTN_CD
+                , TRSM_INTN_NM
+                , RECV_INTN_CD
+                , DATM_CRTN_DATE
+                , DATM_CRTN_TM
+                , SRVC_NM
+
+                , CNCT_ERROR_MSG_CONT
+                , CNCT_ERROR_OCRR_DATE
+                , CNCT_ERROR_OCRR_TM
+                , UNTY_CNCT_MNTR_DVSN_CD
+                , FRST_REGISTER_ID
+                , FRST_RGST_DT
+                , FRST_RGST_PRG_NM
+                , LAST_UPDUSR_ID
+                , LAST_CRCT_DT
+                , LAST_CRCT_PRG_NM
+            )
+         VALUES
+            (
+                  #{trnscId}
+                , 'CNCTP01'
+                , '10018'
+                , 'EMS'
+                , '10018'
+                , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                , TO_CHAR(SYSDATE, 'HH24MISS')
+                , #{serviceName}
+
+                , #{errorMsg}
+                , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                , TO_CHAR(SYSDATE, 'HH24MISS')
+                , 'N'
+                , 'ESB'
+                , SYSDATE
+                , 'BICYCLE'
+                , 'ESB'
+                , SYSDATE
+                , 'BICYCLE'
+            )
+     </insert>
+
+</mapper>

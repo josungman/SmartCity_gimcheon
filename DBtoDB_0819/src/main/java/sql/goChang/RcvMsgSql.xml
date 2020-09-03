@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  namespace 수정하지 마세요 -->
+<mapper namespace="RcvMsg">
+
+    <insert id ="insertMsg" parameterType="HashMap">
+        INSERT INTO TMS_MESSAGE   /* ESB연계_강형석_insertMsg */
+                (
+                  USER_ID,
+                  MSG_TYPE,
+                  SENDER,
+                  TEMPLATE_CODE,
+                  SUBJECT,
+                  MSG,
+                  RECVNUM,
+                  SENDNUM,
+                  SENDDATE,
+                  ATOK_NUM,
+                  ATOK_RTN,
+                  SMS_NUM,
+                  SMS_TYPE,
+                  SMS_RTN,
+                  FAILACT,
+                  FAILMSG,
+                  BTN_TYPE,
+                  BTN_INFO,
+                  IMG_URL,
+                  IMG_LINK,
+                  EXT_KEY
+                )
+            SELECT
+
+                   #{user_id},
+                  #{msg_type},
+                  #{sender},
+                  #{template_code},
+                  #{subject},
+                  #{msg},
+                  #{recvnum},
+                  #{sendnum},
+                  #{senddate},
+                  #{atok_num},
+                  #{atok_rtn},
+                  #{sms_num},
+                  #{sms_type},
+                  #{sms_rtn},
+                  #{failact},
+                  #{failmsg},
+                  #{btn_type},
+                  #{btn_info},
+                  #{img_url},
+                  #{img_link},
+                  #{reg_date}
+
+                FROM DUAL WHERE NOT EXISTS
+                    (
+                        SELECT * FROM TMS_MESSAGE
+                        WHERE EXT_KEY = #{reg_date}
+                    )
+    </insert>
+    <insert id ="insertMsg2" parameterType="HashMap">
+        INSERT INTO TMS_MESSAGE2   /* ESB연계_강형석_insertMsg */
+                (
+                  USER_ID,
+                  MSG_TYPE,
+                  SENDER,
+                  TEMPLATE_CODE,
+                  SUBJECT,
+                  MSG,
+                  RECVNUM,
+                  SENDNUM,
+                  SENDDATE,
+                  ATOK_NUM,
+                  ATOK_RTN,
+                  SMS_NUM,
+                  SMS_TYPE,
+                  SMS_RTN,
+                  FAILACT,
+                  FAILMSG,
+                  BTN_TYPE,
+                  BTN_INFO,
+                  IMG_URL,
+                  IMG_LINK,
+                  EXT_KEY
+                )
+            SELECT
+
+                   #{user_id},
+                  #{msg_type},
+                  #{sender},
+                  #{template_code},
+                  #{subject},
+                  #{msg},
+                  #{recvnum},
+                  #{sendnum},
+                  #{senddate},
+                  #{atok_num},
+                  #{atok_rtn},
+                  #{sms_num},
+                  #{sms_type},
+                  #{sms_rtn},
+                  #{failact},
+                  #{failmsg},
+                  #{btn_type},
+                  #{btn_info},
+                  #{img_url},
+                  #{img_link},
+                  #{reg_date}
+
+                FROM DUAL WHERE NOT EXISTS
+                    (
+                        SELECT * FROM TMS_MESSAGE
+                        WHERE EXT_KEY = #{reg_date}
+                    )
+    </insert>
+
+    <insert id="insertErrorMsg"  parameterType="HashMap" >
+        INSERT  /* ESB연계_변영훈_insertErrorMsg */ INTO  TC_ERROR_LOG_CNCT
+            (
+                  TRNSC_ID
+                , CNCT_PTRN_VAL
+                , TRSM_INTN_CD
+                , TRSM_INTN_NM
+                , RECV_INTN_CD
+                , DATM_CRTN_DATE
+                , DATM_CRTN_TM
+                , SRVC_NM
+
+                , CNCT_ERROR_MSG_CONT
+                , CNCT_ERROR_OCRR_DATE
+                , CNCT_ERROR_OCRR_TM
+                , UNTY_CNCT_MNTR_DVSN_CD
+                , FRST_REGISTER_ID
+                , FRST_RGST_DT
+                , FRST_RGST_PRG_NM
+                , LAST_UPDUSR_ID
+                , LAST_CRCT_DT
+                , LAST_CRCT_PRG_NM
+            )
+         VALUES
+            (
+                  #{trnscId}
+                , 'CNCTP01'
+                , '10018'
+                , 'EMS'
+                , '10018'
+                , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                , TO_CHAR(SYSDATE, 'HH24MISS')
+                , #{serviceName}
+
+                , #{errorMsg}
+                , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                , TO_CHAR(SYSDATE, 'HH24MISS')
+                , 'N'
+                , 'ESB'
+                , SYSDATE
+                , 'BICYCLE'
+                , 'ESB'
+                , SYSDATE
+                , 'BICYCLE'
+            )
+     </insert>
+
+</mapper>

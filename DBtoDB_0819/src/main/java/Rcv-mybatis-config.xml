@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <settings>
+        <setting name="cacheEnabled" value="false" />
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="useColumnLabel" value="true"/>
+        <setting name="useGeneratedKeys" value="false" />
+        <setting name="defaultExecutorType" value="REUSE" />
+        <!-- <setting name="defaultExecutorType" value="BATCH" /> -->
+        <setting name="localCacheScope" value="STATEMENT" />
+        <setting name="jdbcTypeForNull" value="NULL" />
+    </settings>
+
+   <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="org.mariadb.jdbc.Driver"/>
+                <property name="url" value="jdbc:mariadb://222.103.189.76:3306/acs?allowMultiQueries=true"/>
+
+<!--  <property name="driver" value="com.mysql.jdbc.Driver"/> -->
+<!--                 <property name="url" value="jdbc:mysql://localhost:3306/test?characterEncoding=UTF-8"/> -->
+                
+                <property name="username" value="admin"/>
+                <property name="password" value="st5300"/>
+                
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <mapper resource="sql/gimcheon/sms/RcvMsgSql.xml"/>
+    </mappers>
+
+</configuration>

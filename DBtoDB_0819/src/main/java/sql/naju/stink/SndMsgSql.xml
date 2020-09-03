@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SndMsg">
+
+    <select id="selecMsg" parameterType="HashMap" resultType="hashmap">
+        SELECT /* ESB연계_강형석_selectALIMY_TB*/
+            DataDateTime,
+            AbsoluteID,
+            PeriodStyle,
+            TOD,
+            TH1,
+            TN1,
+            TV1,
+            OTT,
+            OTH,
+            OWD,
+            OWS,
+            OTR,
+            ITH,
+            SS1,
+            SS2,
+            SPT,
+            SPH,
+            ATM
+        FROM ALIMY_TB
+        WHERE
+            CNCT_YN = 'Y'
+    </select>
+
+    <update id="updateCnctYnMsg" parameterType="HashMap">
+        UPDATE ALIMY_TB /* ESB연계_강형석_updateCnctYn */
+        SET
+            CNCT_YN = 'N'
+        <where>
+              REG_DATE = #{REG_DATE}
+        </where>
+    </update>
+
+
+    <insert id="insertErrorMsg"  parameterType="HashMap" >
+        INSERT  /* ESB연계_변영훈_insertErrorMsg */ INTO  TC_ERROR_LOG_CNCT
+            (
+                  TRNSC_ID
+                , CNCT_PTRN_VAL
+                , TRSM_INTN_CD
+                , TRSM_INTN_NM
+                , RECV_INTN_CD
+                , DATM_CRTN_DATE
+                , DATM_CRTN_TM
+                , SRVC_NM
+
+                , CNCT_ERROR_MSG_CONT
+                , CNCT_ERROR_OCRR_DATE
+                , CNCT_ERROR_OCRR_TM
+                , UNTY_CNCT_MNTR_DVSN_CD
+                , FRST_REGISTER_ID
+                , FRST_RGST_DT
+                , FRST_RGST_PRG_NM
+                , LAST_UPDUSR_ID
+                , LAST_CRCT_DT
+                , LAST_CRCT_PRG_NM
+            )
+         VALUES
+            (
+                  #{trnscId}
+                , 'CNCTP01'
+                , '10018'
+                , 'EMS'
+                , '10018'
+                , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                , TO_CHAR(SYSDATE, 'HH24MISS')
+                , #{serviceName}
+
+                , #{errorMsg}
+                , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                , TO_CHAR(SYSDATE, 'HH24MISS')
+                , 'N'
+                , 'ESB'
+                , SYSDATE
+                , 'BICYCLE'
+                , 'ESB'
+                , SYSDATE
+                , 'BICYCLE'
+            )
+     </insert>
+
+
+</mapper>

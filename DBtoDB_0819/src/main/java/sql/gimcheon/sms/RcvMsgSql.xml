@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  namespace 수정하지 마세요 -->
+<mapper namespace="RcvMsg">
+
+    <insert id ="insertSmsMsg" parameterType="HashMap">
+
+SET /* 01. MariaDB(SMS) sequence */ @B_ID = nextVal('BROADCAST_ID');
+
+INSERT INTO svb_broadcast_detail  /* 02. MariaDB(SMS) detail insert */
+
+    (broadcast_id, id, target_id, target_name, target_phone, in_dept_yn, dept_name, broadcast_kind, STATUS) 
+
+    SELECT @B_ID AS broadcast_id, @rownum := @rownum + 1 AS id, t.id, t.name, t.phone, t.in_dept_yn, t.dept_name, #{KIND} AS broadcast_kind, '00' AS STATUS 
+
+FROM  
+
+( 
+
+    SELECT svb_target.id, svb_target.name, svb_target.phone, 'Y' AS in_dept_yn, svb_dept.name AS dept_name FROM svb_target 
+
+    INNER JOIN svb_dept ON svb_target.dept_id = svb_dept.id 
+
+    WHERE EXISTS  
+
+        ( 
+
+            SELECT 1 FROM  
+
+            ( 
+
+                SELECT CODE FROM svb_dept WHERE id = #{DEPT_ID}
+
+                UNION ALL 
+
+                SELECT  dept_hierarchy_connect_by_parent_eq_prior_id(CODE) AS CODE 
+
+                FROM     
+
+                ( 
+
+                    SELECT  @start_with := CODE, @code := @start_with, @lvl := 0 
+
+                    FROM svb_dept  
+
+                    WHERE id = #{DEPT_ID}
+
+                ) vars, svb_dept 
+
+                WHERE   @code IS NOT NULL 
+
+            ) ho 
+
+            WHERE svb_dept.code = ho.code 
+
+        )   
+
+) t, (SELECT @rownum := 0) tnum;
+
+
+SET /* 03. MariaDB(SMS) target count */ @B_COUNT = (SELECT COUNT(broadcast_id) FROM svb_broadcast_detail WHERE broadcast_id= @B_ID);
+
+
+INSERT INTO svb_broadcast /* 04. MariaDB(SMS) broadcast insert */ ( 
+id,
+user_id,
+user_account,
+dept_id,
+kind,
+reserve_yn,
+msg_subject, 
+msg_content,
+callback,
+target_count, 
+status,
+request_date,
+c_date,
+msg_filename) VALUES
+(@B_ID,#{USER_ID},#{USER_ACCOUNT},#{USER_ID},#{KIND},#{RESERVE_YN},#{MSG_SUBJECT},#{MSG_CONTENT},#{CALLBACK},@B_COUNT,'00',#{REQUEST_DATE},#{C_DATE},#{MSG_FILENAME});
+
+    </insert>
+    <insert id ="insertMsg2" parameterType="HashMap">
+        INSERT INTO TMS_MESSAGE2   /* ESB연계_강형석_insertMsg */
+                (
+                  USER_ID,
+                  MSG_TYPE,
+                  SENDER,
+                  TEMPLATE_CODE,
+                  SUBJECT,
+                  MSG,
+                  RECVNUM,
+                  SENDNUM,
+                  SENDDATE,
+                  ATOK_NUM,
+                  ATOK_RTN,
+                  SMS_NUM,
+                  SMS_TYPE,
+                  SMS_RTN,
+                  FAILACT,
+                  FAILMSG,
+                  BTN_TYPE,
+                  BTN_INFO,
+                  IMG_URL,
+                  IMG_LINK,
+                  EXT_KEY
+                )
+            SELECT
+
+                   #{user_id},
+                  #{msg_type},
+                  #{sender},
+                  #{template_code},
+                  #{subject},
+                  #{msg},
+                  #{recvnum},
+                  #{sendnum},
+                  #{senddate},
+                  #{atok_num},
+                  #{atok_rtn},
+                  #{sms_num},
+                  #{sms_type},
+                  #{sms_rtn},
+                  #{failact},
+                  #{failmsg},
+                  #{btn_type},
+                  #{btn_info},
+                  #{img_url},
+                  #{img_link},
+                  #{reg_date}
+
+                FROM DUAL WHERE NOT EXISTS
+                    (
+                        SELECT * FROM TMS_MESSAGE
+                        WHERE EXT_KEY = #{reg_date}
+                    )
+    </insert>
+
+    <insert id="insertErrorMsg"  parameterType="HashMap" >
+        INSERT  /* ESB연계_변영훈_insertErrorMsg */ INTO  TC_ERROR_LOG_CNCT
+            (
+                  TRNSC_ID
+                , CNCT_PTRN_VAL
+                , TRSM_INTN_CD
+                , TRSM_INTN_NM
+                , RECV_INTN_CD
+                , DATM_CRTN_DATE
+                , DATM_CRTN_TM
+                , SRVC_NM
+
+                , CNCT_ERROR_MSG_CONT
+                , CNCT_ERROR_OCRR_DATE
+                , CNCT_ERROR_OCRR_TM
+                , UNTY_CNCT_MNTR_DVSN_CD
+                , FRST_REGISTER_ID
+                , FRST_RGST_DT
+                , FRST_RGST_PRG_NM
+                , LAST_UPDUSR_ID
+                , LAST_CRCT_DT
+                , LAST_CRCT_PRG_NM
+            )
+         VALUES
+            (
+                  #{trnscId}
+                , 'CNCTP01'
+                , '10018'
+                , 'EMS'
+                , '10018'
+                , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                , TO_CHAR(SYSDATE, 'HH24MISS')
+                , #{serviceName}
+
+                , #{errorMsg}
+                , TO_CHAR(SYSDATE, 'YYYYMMDD')
+                , TO_CHAR(SYSDATE, 'HH24MISS')
+                , 'N'
+                , 'ESB'
+                , SYSDATE
+                , 'BICYCLE'
+                , 'ESB'
+                , SYSDATE
+                , 'BICYCLE'
+            )
+     </insert>
+
+</mapper>
