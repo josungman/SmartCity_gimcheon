@@ -1,3 +1,5 @@
+git clone (해당 리모트 repo 경로 다운로드)
+
 git add (프로젝트 추가)
 
 git reset (프로젝트 실행취소)
