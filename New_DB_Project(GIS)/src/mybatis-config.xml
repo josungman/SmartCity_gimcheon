@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <settings>
+        <setting name="cacheEnabled" value="false" />
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="useColumnLabel" value="true"/>
+        <setting name="useGeneratedKeys" value="false" />
+        <setting name="defaultExecutorType" value="REUSE" />
+        <!-- <setting name="defaultExecutorType" value="BATCH" /> -->
+        <setting name="localCacheScope" value="STATEMENT" />
+        <setting name="jdbcTypeForNull" value="NULL" />
+    </settings>
+    <typeAliases></typeAliases>
+
+   <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.tmax.tibero.jdbc.TbDriver"/>
+                <property name="url" value="jdbc:tibero:thin:@127.0.0.1:8629:tibero"/>
+                <property name="username" value="admin"/>
+                <property name="password" value="admin"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+<mappers>
+        <mapper resource="sql/Sql.xml"/>
+    </mappers>
+
+</configuration>
