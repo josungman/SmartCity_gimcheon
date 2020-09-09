@@ -19,7 +19,7 @@
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.tmax.tibero.jdbc.TbDriver"/>
-                <property name="url" value="jdbc:tibero:thin:@127.0.0.1:8629:tibero"/>
+                <property name="url" value="jdbc:tibero:thin:@172.1.12.242:8629:tibero"/>
                 <property name="username" value="admin"/>
                 <property name="password" value="admin"/>
             </dataSource>

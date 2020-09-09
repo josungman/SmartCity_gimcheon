@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com</groupId>
-	<artifactId>New_DB_Project</artifactId>
+	<artifactId>DBtoDB</artifactId>
 	<version>2.2.0.0</version>
 	<packaging>jar</packaging>
 
-	
+	<name>SMS_DBtoDB</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>

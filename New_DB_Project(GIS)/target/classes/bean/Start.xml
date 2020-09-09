@@ -26,7 +26,7 @@
 	<!-- 쿼츠 작업할 class 설정 -->
 	<bean id="Service"
 		class="org.springframework.scheduling.quartz.JobDetailBean">
-		<property name="jobClass" value="COM.GisCore" />
+		<property name="jobClass" value="com.gis.GisCore" />
 		<property name="jobDataAsMap">
 			<map>
 				<entry key="beforeEPSG" value="${beforeEPSG}" /> 
@@ -63,6 +63,7 @@
 				<prop key="org.quartz.threadPool.threadPriority">4</prop>
 				<prop key="org.quartz.jobStore.class">org.quartz.simpl.RAMJobStore</prop>
 				<prop key="org.quartz.jobStore.misfireThreshold">60000</prop>
+				<prop key="org.quartz.utils.UpdateChecker">true</prop>
 			</props>
 		</property>
 	</bean>

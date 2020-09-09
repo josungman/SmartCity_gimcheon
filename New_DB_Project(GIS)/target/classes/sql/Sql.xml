@@ -3,6 +3,9 @@
 <!-- namespace 수정하지 마세요 -->
 <mapper namespace="Query">
 
+<!-- $문자열 그대로 -->
+<!-- #자동변환 -->
+
 	<select id="selectSQL" parameterType="HashMap"
 		resultType="hashmap">
 
